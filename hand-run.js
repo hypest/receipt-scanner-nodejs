@@ -31,7 +31,7 @@ async function processDocument(projectId, location, processorId, filePath, mimeT
     return result.document;
 }
 
-// run like this: node index.js image_filename 'image/jpeg'
+// run like this: node hand-run.js image_filename 'image/jpeg'
 async function main(filePath, mimeType) {
     const document = await processDocument(projectId, location, processorId, filePath, mimeType);
     console.log("Document Processing Complete");
