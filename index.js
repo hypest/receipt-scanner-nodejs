@@ -94,7 +94,7 @@ functions.cloudEvent('helloGCS', async (cloudEvent, callback) => {
 //   const contents = await storage.bucket(file.bucket).file(file.name).download();
 //     const encodedImage = Buffer.from(contents).toString('base64');
 
-  downloadFile(storage, file.bucket, file.name).catch(console.error);
+  await downloadFile(storage, file.bucket, file.name).catch(console.error);
   const imageFile = fs.readFileSync(tempfileName);
   const encodedImage = Buffer.from(imageFile).toString('base64');
 
