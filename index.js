@@ -26,6 +26,21 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 const tempfileName = 'tempfile.jpg';
 
+function log(message) {
+    // Complete a structured log entry.
+    const entry = Object.assign({
+        severity: 'NOTICE',
+        message: typeof message === 'object' && message !== null ? JSON.stringify(message, null, 2) : message,
+        // Log viewer accesses 'component' as 'jsonPayload.component'.
+        component: 'arbitrary-property',
+        },
+        {}
+    );
+
+    // Serialize to a JSON string and output.
+    console.log(JSON.stringify(entry));
+}
+
 async function downloadIntoMemory(storage, bucketName, fileName) {
   // Downloads the file into a buffer in memory.
   const contents = await storage.bucket(bucketName).file(fileName).download();
@@ -51,16 +66,17 @@ async function downloadFile(storage, bucketName, fileName) {
 
 // Register a CloudEvent callback with the Functions Framework that will
 // be triggered by Cloud Storage.
-functions.cloudEvent('helloGCS', async cloudEvent => {
-  console.log(`Event ID: ${cloudEvent.id}`);
-  console.log(`Event Type: ${cloudEvent.type}`);
+    log(cloudEvent);
+    // console.log(JSON.stringify(cloudEvent, null, 2));
+//   console.log(`Event ID: ${cloudEvent.id}`);
+//   console.log(`Event Type: ${cloudEvent.type}`);
 
   const file = cloudEvent.data;
-  console.log(`Bucket: ${file.bucket}`);
-  console.log(`File: ${file.name}`);
-  console.log(`Metageneration: ${file.metageneration}`);
-  console.log(`Created: ${file.timeCreated}`);
-  console.log(`Updated: ${file.updated}`);
+//   console.log(`Bucket: ${file.bucket}`);
+//   console.log(`File: ${file.name}`);
+//   console.log(`Metageneration: ${file.metageneration}`);
+//   console.log(`Created: ${file.timeCreated}`);
+//   console.log(`Updated: ${file.updated}`);
 
   const storage = new Storage();
 
@@ -83,7 +99,8 @@ functions.cloudEvent('helloGCS', async cloudEvent => {
         content: encodedImage,
         mimeType: 'image/jpeg'
     };
-    console.log(rawDocument);
+// log(rawDocument);
+    // console.log(rawDocument);
 
     const request = {
         name: resourceName,
@@ -94,7 +111,8 @@ functions.cloudEvent('helloGCS', async cloudEvent => {
 
     const { document } = result[0];
 
-    console.log(JSON.stringify(document.entities));
+    log(document.entities);
+    // console.log(JSON.stringify(document.entities, null, 2));
     // console.log(document.text);
     // console.log(result);
 
