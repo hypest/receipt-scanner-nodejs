@@ -17,10 +17,6 @@ import debug from '@google-cloud/debug-agent';
 debug.start({
     allowExpressions: true
 });
-// debug.isReady().then(() => {
-//     debugInitialized = true;
-//     console.log("Debugger is initialize");
-// });
 
 import { BigQuery } from '@google-cloud/bigquery';
 
@@ -110,7 +106,7 @@ functions.cloudEvent('helloGCS', async (cloudEvent, callback) => {
         content: encodedImage,
         mimeType: 'image/jpeg'
     };
-// log(rawDocument);
+    // log(rawDocument);
     // console.log(rawDocument);
 
     const request = {
