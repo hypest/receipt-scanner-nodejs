@@ -1,23 +1,49 @@
-import fs from "fs";
-import { Buffer } from "buffer";
-import functions from "@google-cloud/functions-framework";
-import { Storage } from "@google-cloud/storage";
-import { v1 } from "@google-cloud/documentai";
+import functions from '@google-cloud/functions-framework';
+import { Storage } from '@google-cloud/storage';
+import { v1 } from '@google-cloud/documentai';
 const { DocumentProcessorServiceClient } = v1;
+import fs from 'fs';
+import { Buffer } from 'buffer';
 
 import { projectId, location, processorId } from "./gcloud-config.js";
 
-const tempfileName = "tempfile.jpg";
+import debug from '@google-cloud/debug-agent';
+debug.start({
+    allowExpressions: true
+});
+// debug.isReady().then(() => {
+//     debugInitialized = true;
+//     console.log("Debugger is initialize");
+// });
+
+const tempfileName = 'tempfile.jpg';
+
+async function downloadIntoMemory(storage, bucketName, fileName) {
+  // Downloads the file into a buffer in memory.
+  const contents = await storage.bucket(bucketName).file(fileName).download();
+
+//   console.log(
+//     `Contents of gs://${bucketName}/${fileName} are ${contents.toString()}.`
+//   );
+    return contents;
+}
 
 async function downloadFile(storage, bucketName, fileName) {
-  await storage.bucket(bucketName).file(fileName).download({
+  const options = {
     destination: tempfileName,
-  });
+  };
+
+  // Downloads the file
+  await storage.bucket(bucketName).file(fileName).download(options);
+
+//   console.log(
+//     `gs://${bucketName}/${fileName} downloaded to ${destFileName}.`
+//   );
 }
 
 // Register a CloudEvent callback with the Functions Framework that will
 // be triggered by Cloud Storage.
-functions.cloudEvent("helloGCS", async (cloudEvent) => {
+functions.cloudEvent('helloGCS', async cloudEvent => {
   console.log(`Event ID: ${cloudEvent.id}`);
   console.log(`Event Type: ${cloudEvent.type}`);
 
@@ -30,33 +56,37 @@ functions.cloudEvent("helloGCS", async (cloudEvent) => {
 
   const storage = new Storage();
 
+//   const contents = await storage.bucket(file.bucket).file(file.name).download();
+//     const encodedImage = Buffer.from(contents).toString('base64');
+
   downloadFile(storage, file.bucket, file.name).catch(console.error);
   const imageFile = fs.readFileSync(tempfileName);
-  const encodedImage = Buffer.from(imageFile).toString("base64");
+  const encodedImage = Buffer.from(imageFile).toString('base64');
 
-  const documentaiClient = new DocumentProcessorServiceClient({
-    apiEndpoint: "eu-documentai.googleapis.com",
-  });
 
-  const resourceName = documentaiClient.processorPath(
-    projectId,
-    location,
-    processorId
-  );
-  // console.log(resourceName);
+    const documentaiClient = new DocumentProcessorServiceClient({
+        apiEndpoint: 'eu-documentai.googleapis.com'
+    });
 
-  const rawDocument = {
-    content: encodedImage,
-    mimeType: "image/jpeg",
-  };
-  // console.log(rawDocument);
+    const resourceName = documentaiClient.processorPath(projectId, location, processorId);
+    console.log(resourceName);
 
-  const request = {
-    name: resourceName,
-    rawDocument: rawDocument,
-  };
+    const rawDocument = {
+        content: encodedImage,
+        mimeType: 'image/jpeg'
+    };
+    console.log(rawDocument);
 
-  const result = await documentaiClient.processDocument(request);
+    const request = {
+        name: resourceName,
+        rawDocument: rawDocument
+    };
 
-  console.log(result);
+    const result = await documentaiClient.processDocument(request);
+
+    const { document } = result[0];
+
+    console.log(document.entities);
+    console.log(document.text);
+    // console.log(result);
 });
