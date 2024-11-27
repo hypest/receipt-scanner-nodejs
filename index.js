@@ -5,7 +5,13 @@ const { DocumentProcessorServiceClient } = v1;
 import fs from 'fs';
 import { Buffer } from 'buffer';
 
-import { projectId, location, processorId } from "./gcloud-config.js";
+import {
+    projectId,
+    location,
+    processorId,
+    datasetId,
+    tableId,
+} from "./gcloud-config.js";
 
 import debug from '@google-cloud/debug-agent';
 debug.start({
@@ -15,6 +21,8 @@ debug.start({
 //     debugInitialized = true;
 //     console.log("Debugger is initialize");
 // });
+
+import { BigQuery } from '@google-cloud/bigquery';
 
 const tempfileName = 'tempfile.jpg';
 
@@ -86,7 +94,28 @@ functions.cloudEvent('helloGCS', async cloudEvent => {
 
     const { document } = result[0];
 
-    console.log(document.entities);
-    console.log(document.text);
+    console.log(JSON.stringify(document.entities));
+    // console.log(document.text);
     // console.log(result);
+
+    const bigquery = new BigQuery();
+    const rows = [
+        {
+            item_code: '123',
+            item_price: 3.2,
+            InvoiceID: 'test1',
+        },
+        {
+            item_code: '456',
+            item_price: 5.2,
+            InvoiceID: 'test2',
+        },
+    ];
+
+    // Insert data into a table
+    await bigquery
+        .dataset(datasetId)
+        .table(tableId)
+        .insert(rows);
+    // console.log(`Inserted ${rows.length} rows`);
 });
