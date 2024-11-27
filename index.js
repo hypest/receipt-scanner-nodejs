@@ -66,6 +66,17 @@ async function downloadFile(storage, bucketName, fileName) {
 
 // Register a CloudEvent callback with the Functions Framework that will
 // be triggered by Cloud Storage.
+functions.cloudEvent('helloGCS', async (cloudEvent, callback) => {
+    const eventAge = Date.now() - Date.parse(cloudEvent.time);
+    const eventMaxAge = 10000;
+
+    // Ignore events that are too old
+    if (eventAge > eventMaxAge) {
+        console.log(`Dropping event ${cloudEvent} with age ${eventAge} ms.`);
+        callback();
+        return;
+    }
+
     log(cloudEvent);
     // console.log(JSON.stringify(cloudEvent, null, 2));
 //   console.log(`Event ID: ${cloudEvent.id}`);
