@@ -28,8 +28,7 @@ function log(message) {
         severity: 'NOTICE',
         message: typeof message === 'object' && message !== null ? JSON.stringify(message, null, 2) : message,
         // Log viewer accesses 'component' as 'jsonPayload.component'.
-        component: 'arbitrary-property',
-        },
+        component: 'arbitrary-property'},
         {}
     );
 
@@ -38,26 +37,19 @@ function log(message) {
 }
 
 async function downloadIntoMemory(storage, bucketName, fileName) {
-  // Downloads the file into a buffer in memory.
-  const contents = await storage.bucket(bucketName).file(fileName).download();
+    // Downloads the file into a buffer in memory.
+    const contents = await storage.bucket(bucketName).file(fileName).download();
 
-//   console.log(
-//     `Contents of gs://${bucketName}/${fileName} are ${contents.toString()}.`
-//   );
     return contents;
 }
 
 async function downloadFile(storage, bucketName, fileName) {
-  const options = {
-    destination: tempfileName,
-  };
+    const options = {
+        destination: tempfileName,
+    };
 
-  // Downloads the file
-  await storage.bucket(bucketName).file(fileName).download(options);
-
-//   console.log(
-//     `gs://${bucketName}/${fileName} downloaded to ${destFileName}.`
-//   );
+    // Downloads the file
+    await storage.bucket(bucketName).file(fileName).download(options);
 }
 
 // Register a CloudEvent callback with the Functions Framework that will
@@ -74,26 +66,17 @@ functions.cloudEvent('helloGCS', async (cloudEvent, callback) => {
     }
 
     log(cloudEvent);
-    // console.log(JSON.stringify(cloudEvent, null, 2));
-//   console.log(`Event ID: ${cloudEvent.id}`);
-//   console.log(`Event Type: ${cloudEvent.type}`);
 
-  const file = cloudEvent.data;
-//   console.log(`Bucket: ${file.bucket}`);
-//   console.log(`File: ${file.name}`);
-//   console.log(`Metageneration: ${file.metageneration}`);
-//   console.log(`Created: ${file.timeCreated}`);
-//   console.log(`Updated: ${file.updated}`);
+    const file = cloudEvent.data;
 
-  const storage = new Storage();
+    const storage = new Storage();
 
 //   const contents = await storage.bucket(file.bucket).file(file.name).download();
 //     const encodedImage = Buffer.from(contents).toString('base64');
 
-  await downloadFile(storage, file.bucket, file.name).catch(console.error);
-  const imageFile = fs.readFileSync(tempfileName);
-  const encodedImage = Buffer.from(imageFile).toString('base64');
-
+    await downloadFile(storage, file.bucket, file.name).catch(console.error);
+    const imageFile = fs.readFileSync(tempfileName);
+    const encodedImage = Buffer.from(imageFile).toString('base64');
 
     const documentaiClient = new DocumentProcessorServiceClient({
         apiEndpoint: 'eu-documentai.googleapis.com'
@@ -106,8 +89,6 @@ functions.cloudEvent('helloGCS', async (cloudEvent, callback) => {
         content: encodedImage,
         mimeType: 'image/jpeg'
     };
-    // log(rawDocument);
-    // console.log(rawDocument);
 
     const request = {
         name: resourceName,
@@ -119,9 +100,6 @@ functions.cloudEvent('helloGCS', async (cloudEvent, callback) => {
     const { document } = result[0];
 
     log(document.entities);
-    // console.log(JSON.stringify(document.entities, null, 2));
-    // console.log(document.text);
-    // console.log(result);
 
     const bigquery = new BigQuery();
     const rows = [
@@ -142,5 +120,4 @@ functions.cloudEvent('helloGCS', async (cloudEvent, callback) => {
         .dataset(datasetId)
         .table(tableId)
         .insert(rows);
-    // console.log(`Inserted ${rows.length} rows`);
 });
