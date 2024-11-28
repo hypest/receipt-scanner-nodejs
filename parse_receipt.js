@@ -1,24 +1,37 @@
 import { randomUUID } from "crypto";
 
+function parseCommaFloat(value) {
+  return parseFloat(value.replace(",", "."));
+}
+
+function combineDateTime(dateStr, timeStr) {
+  const dateTimeStr = `${dateStr} ${timeStr}`;
+  const dateObj = new Date(dateTimeStr);
+  return Math.floor(dateObj.getTime() / 1000).toString();
+}
+
 export function parseReceipt(entities) {
   const receipt = {
     receipt_id: randomUUID(),
-    date: "",
-    time: "",
+    timestamp: "",
     store_name: "",
     store_address: "",
     total: "",
   };
 
   const items = [];
+  var dateStr = "";
+  var timeStr = "";
 
   entities.forEach((element) => {
     switch (element.type) {
       case "date":
-        receipt.date = element.normalizedValue.text;
+        dateStr = element.normalizedValue.text;
+        receipt.timestamp = combineDateTime(dateStr, timeStr);
         break;
       case "time":
-        receipt.time = element.mentionText;
+        timeStr = element.mentionText;
+        receipt.timestamp = combineDateTime(dateStr, timeStr);
         break;
       case "store_name":
         receipt.store_name = element.mentionText;
@@ -27,7 +40,7 @@ export function parseReceipt(entities) {
         receipt.store_address = element.mentionText;
         break;
       case "total":
-        receipt.total = element.mentionText;
+        receipt.total = parseCommaFloat(element.mentionText);
         break;
       case "items":
         const itemObj = {
@@ -35,9 +48,9 @@ export function parseReceipt(entities) {
           receipt_id: receipt.receipt_id,
           code: "",
           name: "",
-          quantity: "",
-          price_per_unit: "",
-          price: "",
+          quantity: 0,
+          price_per_unit: 0,
+          price: 0,
           vat: "",
         };
 
@@ -49,13 +62,13 @@ export function parseReceipt(entities) {
               itemObj.name = itemField.mentionText;
               break;
             case "item_quantity":
-              itemObj.quantity = itemField.mentionText;
+              itemObj.quantity = parseCommaFloat(itemField.mentionText);
               break;
             case "item_price_per_unit":
-              itemObj.price_per_unit = itemField.mentionText;
+              itemObj.price_per_unit = parseCommaFloat(itemField.mentionText);
               break;
             case "item_price":
-              itemObj.price = itemField.mentionText;
+              itemObj.price = parseCommaFloat(itemField.mentionText);
               break;
             case "item_vat":
               itemObj.vat = itemField.mentionText;
@@ -64,6 +77,12 @@ export function parseReceipt(entities) {
               console.log("Unknown item field type");
           }
         });
+
+        if (itemObj.quantity === 0) {
+          itemObj.quantity = 1;
+          itemObj.price_per_unit = itemObj.price;
+        }
+
         items.push(itemObj);
         break;
       default:
@@ -75,6 +94,6 @@ export function parseReceipt(entities) {
   items.forEach((item) => {
     flattenItems.push({ ...item, ...receipt });
   });
-  
+
   return flattenItems;
 }
