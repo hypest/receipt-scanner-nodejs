@@ -79,7 +79,7 @@ export function parseReceipt(entities) {
               itemObj.vat = itemField.mentionText;
               break;
             default:
-              console.log("Unknown item field type");
+              console.log(`Unknown item field type: ${itemField.type}`);
           }
         });
 
@@ -91,7 +91,7 @@ export function parseReceipt(entities) {
         items.push(itemObj);
         break;
       default:
-        console.log("Unknown entity type");
+        console.log(`Unknown entity type: ${element.type}`);
     }
   });
 
