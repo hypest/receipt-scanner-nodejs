@@ -17,6 +17,8 @@ export function parseReceipt(entities) {
     store_name: "",
     store_address: "",
     total: "",
+    total: "",
+    unique_identifier: "",
   };
 
   const items = [];
@@ -41,6 +43,9 @@ export function parseReceipt(entities) {
         break;
       case "total":
         receipt.total = parseCommaFloat(element.mentionText);
+        break;
+      case "unique_identifier":
+        receipt.unique_identifier = element.mentionText;
         break;
       case "items":
         const itemObj = {
