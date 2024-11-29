@@ -22,8 +22,6 @@ debug.start({
 
 import { BigQuery } from "@google-cloud/bigquery";
 
-const tempfileName = "tempfile.jpg";
-
 function log(message) {
   // Complete a structured log entry.
   const entry = Object.assign(
@@ -50,15 +48,6 @@ async function downloadIntoMemory(storage, bucketName, fileName) {
   return contents;
 }
 
-async function downloadFile(storage, bucketName, fileName) {
-  const options = {
-    destination: tempfileName,
-  };
-
-  // Downloads the file
-  await storage.bucket(bucketName).file(fileName).download(options);
-}
-
 // Register a CloudEvent callback with the Functions Framework that will
 // be triggered by Cloud Storage.
 functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
@@ -81,9 +70,11 @@ functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
   //   const contents = await storage.bucket(file.bucket).file(file.name).download();
   //     const encodedImage = Buffer.from(contents).toString('base64');
 
-  await downloadFile(storage, file.bucket, file.name).catch(console.error);
-  const imageFile = fs.readFileSync(tempfileName);
-  const encodedImage = Buffer.from(imageFile).toString("base64");
+  const [ encodedImage ] = await downloadIntoMemory(
+    storage,
+    file.bucket,
+    file.name
+  ).catch(console.error);
 
   const documentaiClient = new DocumentProcessorServiceClient({
     apiEndpoint: "eu-documentai.googleapis.com",
