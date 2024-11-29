@@ -1,0 +1,30 @@
+{
+    "id": "12761621150588617",
+    "source": "//storage.googleapis.com/projects/_/buckets/receipts-for-scanning",
+    "specversion": "1.0",
+    "type": "google.cloud.storage.object.v1.finalized",
+    "subject": "objects/20241128_175251.jpg",
+    "time": "2024-11-28T22:28:56.763855Z",
+    "bucket": "receipts-for-scanning",
+    "data": {
+      "kind": "storage#object",
+      "id": "receipts-for-scanning/20241128_175251.jpg/1732832936756275",
+      "selfLink": "https://www.googleapis.com/storage/v1/b/receipts-for-scanning/o/20241128_175251.jpg",
+      "name": "20241128_175251.jpg",
+      "bucket": "receipts-for-scanning",
+      "generation": "1732832936756275",
+      "metageneration": "1",
+      "contentType": "image/jpeg",
+      "timeCreated": "2024-11-28T22:28:56.763Z",
+      "updated": "2024-11-28T22:28:56.763Z",
+      "storageClass": "STANDARD",
+      "timeStorageClassUpdated": "2024-11-28T22:28:56.763Z",
+      "size": "1829906",
+      "md5Hash": "2MJk97vPNuLBcW1nghxIww==",
+      "mediaLink": "https://storage.googleapis.com/download/storage/v1/b/receipts-for-scanning/o/20241128_175251.jpg?generation=1732832936756275&alt=media",
+      "crc32c": "6yY44A==",
+      "etag": "CLOImt2JgIoDEAE="
+    },
+    "traceparent": "00-6032effe9f7d95f57cb07ca182f78c1d-a5fe44bd4cac92b5-01"
+  }
+  
