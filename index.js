@@ -1,9 +1,6 @@
 import functions from "@google-cloud/functions-framework";
-import { Storage } from "@google-cloud/storage";
 import { v1 } from "@google-cloud/documentai";
 const { DocumentProcessorServiceClient } = v1;
-import fs from "fs";
-import { Buffer } from "buffer";
 
 import { parseReceipt } from "./parse_receipt.js";
 
@@ -65,17 +62,6 @@ functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
 
   const file = cloudEvent.data;
 
-  const storage = new Storage();
-
-  //   const contents = await storage.bucket(file.bucket).file(file.name).download();
-  //     const encodedImage = Buffer.from(contents).toString('base64');
-
-  const [ encodedImage ] = await downloadIntoMemory(
-    storage,
-    file.bucket,
-    file.name
-  ).catch(console.error);
-
   const documentaiClient = new DocumentProcessorServiceClient({
     apiEndpoint: "eu-documentai.googleapis.com",
   });
@@ -87,14 +73,14 @@ functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
   );
   console.log(resourceName);
 
-  const rawDocument = {
-    content: encodedImage,
-    mimeType: "image/jpeg",
+  const gcsDocument = {
+    gcsUri: `gs://${file.bucket}/${file.name}`,
+    mimeType: file.contentType,
   };
 
   const request = {
     name: resourceName,
-    rawDocument: rawDocument,
+    gcsDocument,
   };
 
   const result = await documentaiClient.processDocument(request);
