@@ -33,13 +33,6 @@ function log(message) {
   console.log(JSON.stringify(entry));
 }
 
-async function downloadIntoMemory(storage, bucketName, fileName) {
-  // Downloads the file into a buffer in memory.
-  const contents = await storage.bucket(bucketName).file(fileName).download();
-
-  return contents;
-}
-
 // Register a CloudEvent callback with the Functions Framework that will
 // be triggered by Cloud Storage.
 functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
