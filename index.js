@@ -12,11 +12,6 @@ import {
   tableId,
 } from "./gcloud-config.js";
 
-import debug from "@google-cloud/debug-agent";
-debug.start({
-  allowExpressions: true,
-});
-
 import { BigQuery } from "@google-cloud/bigquery";
 
 function log(message) {
