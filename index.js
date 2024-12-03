@@ -33,21 +33,20 @@ function log(message) {
   console.log(JSON.stringify(entry));
 }
 
-// Register a CloudEvent callback with the Functions Framework that will
-// be triggered by Cloud Storage.
-functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
+function shouldHandleCloudEvent(cloudEvent) {
   const eventAge = Date.now() - Date.parse(cloudEvent.time);
   const eventMaxAge = 10000;
 
   // Ignore events that are too old
   if (eventAge > eventMaxAge) {
     console.log(`Dropping event ${cloudEvent} with age ${eventAge} ms.`);
-    callback();
-    return;
+    return false;
+  } else {
+    return true;
   }
+}
 
-  log(cloudEvent);
-
+async function handleCloudEvent(cloudEvent) {
   const file = cloudEvent.data;
 
   const documentaiClient = new DocumentProcessorServiceClient({
@@ -90,5 +89,20 @@ functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
   }
 
   console.log("Data inserted into BigQuery");
+}
+
+// Register a CloudEvent callback with the Functions Framework that will
+// be triggered by Cloud Storage.
+functions.cloudEvent("helloGCS", (cloudEvent, callback) => {
+  log(cloudEvent);
+
+  if (shouldHandleCloudEvent(cloudEvent)) {
+    try {
+      handleCloudEvent(cloudEvent);
+    } catch (e) {
+      log(e);
+    }
+  }
+
   callback();
 });
