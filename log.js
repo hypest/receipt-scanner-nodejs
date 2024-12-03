@@ -5,7 +5,9 @@ export function log(message) {
       severity: "NOTICE",
       message:
         typeof message === "object" && message !== null
-          ? JSON.stringify(message, Object.getOwnPropertyNames(message), 2)
+          ? Array.isArray(message)
+            ? { ...message }
+            : message
           : message,
       // Log viewer accesses 'component' as 'jsonPayload.component'.
       component: "arbitrary-property",
@@ -14,5 +16,5 @@ export function log(message) {
   );
 
   // Serialize to a JSON string and output.
-  console.log(JSON.stringify(entry));
+  console.log(JSON.stringify(entry, null, 2));
 }
