@@ -1,6 +1,6 @@
 import functions from "@google-cloud/functions-framework";
 
-import { processCloudEvent } from "./processCloudEvent.js";
+import { detectAndWrite } from "./processCloudEvent.js";
 import { log } from "./log.js";
 
 function shouldProcessCloudEvent(cloudEvent) {
@@ -19,7 +19,7 @@ function handleCloudEvent(cloudEvent) {
 
   log(cloudEvent);
 
-  processCloudEvent(cloudEvent);
+  detectAndWrite(cloudEvent);
 }
 
 // Register a CloudEvent callback with the Functions Framework that will
