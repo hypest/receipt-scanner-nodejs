@@ -82,5 +82,13 @@ functions.cloudEvent("helloGCS", async (cloudEvent, callback) => {
   const bigquery = new BigQuery();
 
   // Insert data into a table
-  await bigquery.dataset(datasetId).table(tableId).insert(flattenItems);
+  try {
+    await bigquery.dataset(datasetId).table(tableId).insert(flattenItems);
+  } catch (e) {
+    log(e);
+    log(document.entities);
+  }
+
+  console.log("Data inserted into BigQuery");
+  callback();
 });
