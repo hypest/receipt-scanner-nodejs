@@ -5,7 +5,7 @@ export function log(message) {
       severity: "NOTICE",
       message:
         typeof message === "object" && message !== null
-          ? JSON.stringify(message, null, 2)
+          ? JSON.stringify(message, Object.getOwnPropertyNames(message), 2)
           : message,
       // Log viewer accesses 'component' as 'jsonPayload.component'.
       component: "arbitrary-property",
